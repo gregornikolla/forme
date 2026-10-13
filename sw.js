@@ -1,8 +1,8 @@
 // Hors ligne : coquille de l'app mise à jour en arrière-plan, images en cache permanent
-const V = 'forme-v3';
+const V = 'forme-v4';
 const SHELL = ['./', 'index.html', 'style.css', 'app.js', 'util.js', 'store.js', 'exercises.js', 'program.js', 'core.js', 'ui.js',
   'timer.js', 'workout.js', 'views.js', 'manifest.webmanifest', 'icons/icon-192.png', 'fonts/inter.woff2'];
-self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL))); self.skipWaiting(); });
+self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL.map(u => new Request(u, { cache: 'reload' }))))); self.skipWaiting(); });
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
@@ -16,7 +16,8 @@ self.addEventListener('fetch', e => {
     return;
   }
   e.respondWith(caches.match(e.request, { ignoreSearch: true }).then(cached => {
-    const net = fetch(e.request).then(res => {
+    // no-cache : évite de mélanger un fichier neuf et un fichier encore dans le cache HTTP
+    const net = fetch(e.request.mode === 'navigate' ? e.request : new Request(e.request, { cache: 'no-cache' })).then(res => {
       if (res.ok) { const copy = res.clone(); caches.open(V).then(c => c.put(e.request, copy)); }
       return res;
     }).catch(() => cached);

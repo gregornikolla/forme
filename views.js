@@ -1,10 +1,10 @@
 // Écrans principaux
-import { db, save, exOf, unit, toDisp, fromDisp, roundDisp, GOALS } from './store.js';
+import { db, save, exOf, unit, toDisp, fromDisp, roundDisp, bodyUnit, bToDisp, bFromDisp, volTxt, GOALS } from './store.js';
 import { GROUPS, EQUIP } from './exercises.js';
 import { PROGRAM, PHASES, CYCLE_START, ROUTINES, MOBILITY, PRINCIPLES, TESTS, buildSession, ctxOf, testMondays } from './program.js';
 import {
   finished, doneSets, weekStatus, streak, weights, avg7, eta, workoutVolume, workoutSets, exBests, e1rm,
-  muscleSplit, weeklySeries, PR_LABEL, prText, startProgram, startRoutine, startEmpty, startCopy, setText, dayPlan, phaseInfo,
+  muscleSplit, weeklySeries, PR_LABEL, prText, startProgram, startRoutine, startEmpty, startCopy, setText, dayPlan, phaseInfo, makeExercise, targetLabel,
 } from './core.js';
 import { ACT, R, $, toast, openSheet, closeSheet, confirmSheet, thumb, muscleLine, howTo, media, exSheet, lineChart, barChart, ring, progressBar, ts } from './ui.js';
 import { filterEx, openPicker } from './workout.js';
@@ -16,6 +16,7 @@ import {
 
 const P = () => db.profile;
 const U = () => unit();
+const BU = () => bodyUnit();
 const kgTxt = (kg, d = 1) => `${num(toDisp(kg), d)} ${U()}`;
 const back = (href = '#/') => `<a class="icon-btn back" href="${href}" data-act="goBack" aria-label="Retour">${icon('back', 24)}</a>`;
 
@@ -89,7 +90,7 @@ export function home() {
   const days = wk.days.map(x => {
     const done = x.done.length > 0, planned = !!x.p.gym;
     const cls = [done ? 'done' : planned ? (x.p.optional ? 'opt' : 'plan') : '', x.d === t ? 'today' : '', !done && planned && !x.p.optional && x.d < t ? 'miss' : ''].join(' ');
-    return `<div class="wd ${cls}"><span>${DOW1[parse(x.d).getDay()]}</span><i>${done ? icon('check', 14) : parse(x.d).getDate()}</i></div>`;
+    return `<button class="wd ${cls}" data-act="dayPrev" data-d="${x.d}" aria-label="${esc(fmtDay(x.d))}"><span>${DOW1[parse(x.d).getDay()]}</span><i>${done ? icon('check', 14) : parse(x.d).getDate()}</i></button>`;
   }).join('');
   const weekVol = finished().filter(w => w.date >= mondayOf(t)).reduce((a, w) => a + workoutVolume(w), 0);
 
@@ -118,17 +119,17 @@ export function home() {
   <div class="stats3">
     <div class="stat"><span class="stat-ic fire">${icon('flame', 18)}</span><b>${streak()}</b><span>semaine${streak() > 1 ? 's' : ''} parfaite${streak() > 1 ? 's' : ''} d’affilée</span></div>
     <div class="stat"><span class="stat-ic">${icon('dumbbell', 18)}</span><b>${finished().length}</b><span>séance${finished().length > 1 ? 's' : ''} au total</span></div>
-    <div class="stat"><span class="stat-ic">${icon('chart', 18)}</span><b>${num(toDisp(weekVol) / 1000, 1)} t</b><span>soulevées cette semaine</span></div>
+    <div class="stat"><span class="stat-ic">${icon('chart', 18)}</span><b>${volTxt(weekVol)}</b><span>soulevées cette semaine</span></div>
   </div>
   <section class="card">
-    <div class="row between"><h3>Poids</h3><button class="btn soft sm" data-act="weighIn">${weighed ? icon('check', 16) + ' ' + num(toDisp(weighed), 1) : icon('plus', 16) + ' Pesée'}</button></div>
+    <div class="row between"><h3>Poids</h3><button class="btn soft sm" data-act="weighIn">${weighed ? icon('check', 16) + ' ' + num(bToDisp(weighed), 1) : icon('plus', 16) + ' Pesée'}</button></div>
     <div class="weight-row">
-      <div><div class="big-num">${cur != null ? num(toDisp(cur), 1) : '—'}<small> ${U()}</small></div>
-        <div class="muted small">${avg7(t, ws) != null ? 'moyenne sur 7 jours' : 'dernière pesée'}${cur != null && Math.abs(lost) >= 0.05 ? ` · <span class="${lost > 0 ? 'good' : ''}">${lost > 0 ? '−' : '+'}${num(toDisp(Math.abs(lost)), 1)} ${U()}</span>` : ''}</div></div>
+      <div><div class="big-num">${cur != null ? num(bToDisp(cur), 1) : '—'}<small> ${BU()}</small></div>
+        <div class="muted small">${avg7(t, ws) != null ? 'moyenne sur 7 jours' : 'dernière pesée'}${cur != null && Math.abs(lost) >= 0.05 ? ` · <span class="${lost > 0 ? 'good' : ''}">${lost > 0 ? '−' : '+'}${num(bToDisp(Math.abs(lost)), 1)} ${BU()}</span>` : ''}</div></div>
       ${ring(pct, 62, 7, `<b>${Math.max(0, Math.round(pct * 100))}%</b>`)}
     </div>
-    ${recent.length >= 2 ? lineChart([{ pts: recent.map(x => ({ t: ts(x.d), v: toDisp(avg7(x.d, ws)) })), cls: 'avg', area: true }], { h: 110, target: toDisp(prof.targetWeight) }) : ''}
-    <div class="muted small row gap6">${icon('target', 14)}<span>${num(toDisp(prof.targetWeight), 1)} ${U()} · ${etaTxt}</span></div>
+    ${recent.length >= 2 ? lineChart([{ pts: recent.map(x => ({ t: ts(x.d), v: bToDisp(avg7(x.d, ws)) })), cls: 'avg', area: true }], { h: 110, target: bToDisp(prof.targetWeight) }) : ''}
+    <div class="muted small row gap6">${icon('target', 14)}<span>${num(bToDisp(prof.targetWeight), 1)} ${BU()} · ${etaTxt}</span></div>
   </section>
   <section class="card"><h3>Habitudes du jour</h3><div class="habits">${habits}</div></section>
   ${recentW.length ? `<section><div class="row between sec-h"><h3>Dernières séances</h3><a class="link" href="#/historique">Tout voir</a></div>${recentW.map(workoutCard).join('')}</section>` : ''}`;
@@ -137,6 +138,39 @@ function nextSession(t) {
   for (let i = 1; i <= 7; i++) { const d = addDays(t, i), p = dayPlan(d, P()); if (p.gym) return { d, p }; }
   return null;
 }
+// Aperçu d'un jour de la semaine (touche un jour dans « Cette semaine »)
+ACT.dayPrev = el => {
+  const d = el.dataset.d, t = today(), p = dayPlan(d, P()), info = p.info;
+  const done = finished().filter(w => w.date === d);
+  const when = d === t ? 'Aujourd’hui' : d === addDays(t, 1) ? 'Demain' : d === addDays(t, -1) ? 'Hier' : '';
+  let body = '';
+  if (done.length) body += done.map(w => `<a class="li" href="#/w/${w.id}" data-act="sheetClose">
+      <span class="ck sm on">${icon('check', 14)}</span><span class="grow"><b>${esc(w.name)}</b><small>${fmtDur(w.end - w.start)} · ${workoutSets(w)} séries${w.prs?.length ? ` · ${w.prs.length} record${w.prs.length > 1 ? 's' : ''}` : ''}</small></span>${icon('right', 18, 'muted')}</a>`).join('');
+  const progDone = done.some(w => w.kind === 'program');
+  if (p.gym && !progDone) {
+    const ctx = ctxOf(info), S = buildSession(p.gym, ctx);
+    const rows = S.items.map(it => {
+      const ex = exOf(it.id), x = makeExercise(it, { deload: ctx.deload }), w = x.sets[0]?.pw;
+      const load = (ex.lt === 'wr' || ex.lt === 'wd') && w !== '' && w != null ? ` · ${num(roundDisp(toDisp(+w)), 1)} ${U()}`
+        : ex.lt === 'bw' && +w > 0 ? ` · +${num(roundDisp(toDisp(+w)), 1)} ${U()}` : '';
+      return `<button class="li" data-act="exInfo" data-id="${esc(it.id)}">${thumb(it.id, 40)}<span class="grow"><b>${esc(ex.n)}</b>
+        <small>${x.target ? `${x.target.sets} × ${targetLabel(x.target.reps)}` : ''}${load}${it.rpe ? ` · ${esc(it.rpe)}` : ''}</small></span>
+        ${it.ss ? `<span class="badge">${it.ss}</span>` : ''}</button>`;
+    }).join('');
+    const missed = d < t;
+    body += `<div class="muted small">${info.name}${info.weeks > 1 ? ` · semaine ${info.week}` : ''}${ctx.deload ? ' · allégée' : ''}${p.optional ? ' · optionnelle' : ''} · ~${S.min} min${missed ? ' · <span class="bad">non faite</span>' : ''}</div>
+      <h4 class="prev-h">${esc(S.name)}</h4>
+      <div class="muted small">Échauffement : ${S.warm.length} exercices, ~8 min</div>
+      <div class="list flush">${rows}</div>
+      <div class="muted small">Retour au calme : ${S.cool.map(c => esc(exOf(c.id).n)).join(', ')}</div>
+      ${d === t ? `<button class="btn primary block" data-act="startProg" data-type="${p.gym}">${icon('play', 18)} Commencer</button>` : ''}`;
+  }
+  if (p.run) body += `<div class="li"><span class="run-ic">${icon('run', 18)}</span><span class="grow"><b>Course facile${p.run === 'option' ? ' (optionnelle)' : ''}</b><small>30–40 min à allure de conversation${db.runs[d] ? ' · faite' : ''}</small></span></div>`;
+  if (!p.gym && !done.length) body += `<p class="muted">${info.key === 'recup' ? 'Récupération : marche 20–40 min et mobilité douce.' : 'Repos. Marche, et la routine Souplesse si tu as 10 minutes.'}</p>
+      <a class="btn soft block" href="#/mobilite" data-act="sheetClose">${icon('stretch', 18)} ${MOBILITY.name} · ${mobMinutes()} min</a>`;
+  openSheet(`<div class="sheet-body day-prev"><div class="eyebrow">${when || cap(DOW_LONG[parse(d).getDay()])}</div>
+    <h3 class="sheet-title">${cap(fmtDay(d))}</h3>${body}</div>`, { cls: 'tall' });
+};
 const mobMinutes = () => Math.round(MOBILITY.steps.reduce((s, h) => s + (h.hold + 5) * (h.sides ? 2 : 1), 0) / 60);
 
 ACT.habit = el => { const t = today(), h = (db.habits[t] ||= {}); h[el.dataset.k] = !h[el.dataset.k]; save(); R.render(); };
@@ -145,14 +179,14 @@ ACT.weighIn = () => {
   const t = today(), cur = db.body[t]?.weight ?? weights().at(-1)?.v;
   openSheet(`<div class="sheet-body center"><h3 class="sheet-title">Pesée du ${fmtShort(t)}</h3>
     <p class="muted small">Le matin, à jeun, après la toilette. Seule la moyenne compte.</p>
-    <div class="big-input"><input id="wIn" type="number" inputmode="decimal" step="0.1" value="${db.body[t]?.weight ? num(toDisp(cur), 1).replace(',', '.') : ''}" placeholder="${cur ? num(toDisp(cur), 1).replace(',', '.') : ''}"><span>${U()}</span></div>
+    <div class="big-input"><input id="wIn" type="number" inputmode="decimal" step="0.1" value="${db.body[t]?.weight ? num(bToDisp(cur), 1).replace(',', '.') : ''}" placeholder="${cur ? num(bToDisp(cur), 1).replace(',', '.') : ''}"><span>${BU()}</span></div>
     <button class="btn primary block" data-act="weighSave">Enregistrer</button></div>`);
   setTimeout(() => $('#wIn')?.focus(), 250);
 };
 ACT.weighSave = () => {
   const v = parseFloat($('#wIn').value.replace(',', '.'));
   if (!(v > 20 && v < 500)) return toast('Entre un poids valide');
-  const t = today(); (db.body[t] ||= {}).weight = fromDisp(v); save(); closeSheet(); toast('Pesée enregistrée'); R.render();
+  const t = today(); (db.body[t] ||= {}).weight = bFromDisp(v); save(); closeSheet(); toast('Pesée enregistrée'); R.render();
 };
 
 // ---------- Entraînement ----------
@@ -413,15 +447,15 @@ export function profile() {
   <div class="grid3">
     <div class="mini"><span>Séances</span><b>${all.length}</b></div>
     <div class="mini"><span>Heures</span><b>${num(hours, 1)}</b></div>
-    <div class="mini"><span>Volume</span><b>${num(toDisp(vol) / 1000, 1)} t</b></div>
+    <div class="mini"><span>Volume</span><b>${volTxt(vol)}</b></div>
   </div>
   <section class="card">
     <h3>Objectifs</h3>
     <div class="tags">${GOALS.filter(g => p.goals.includes(g.k)).map(g => `<span class="tag strong">${g.n}</span>`).join('')}</div>
     <a class="goal" href="#/corps">
-      <div class="row between"><span>Poids</span><span class="muted small">${num(toDisp(p.startWeight), 1)} → <b class="tx">${cur != null ? num(toDisp(cur), 1) : '—'}</b> → ${num(toDisp(p.targetWeight), 1)} ${U()}</span></div>
+      <div class="row between"><span>Poids</span><span class="muted small">${num(bToDisp(p.startWeight), 1)} → <b class="tx">${cur != null ? num(bToDisp(cur), 1) : '—'}</b> → ${num(bToDisp(p.targetWeight), 1)} ${BU()}</span></div>
       ${progressBar(pct * 100)}
-      <div class="muted small">${e?.done ? 'Objectif atteint' : e?.date ? `Prévu le ${fmtShort(e.date)} (${num(-e.slope * 7 * (U() === 'lb' ? 2.20462 : 1), 2)} ${U()}/sem.)` : 'Pèse-toi chaque matin : l’estimation apparaît après ~10 jours.'}</div>
+      <div class="muted small">${e?.done ? 'Objectif atteint' : e?.date ? `Prévu le ${fmtShort(e.date)} (${num(-e.slope * 7 * (BU() === 'lb' ? 2.20462 : 1), 2)} ${BU()}/sem.)` : 'Pèse-toi chaque matin : l’estimation apparaît après ~10 jours.'}</div>
     </a>
   </section>
   ${lifts ? `<section class="card"><h3>Force</h3><div class="list flush">${lifts}</div></section>` : ''}
@@ -431,7 +465,7 @@ export function profile() {
     ${nt ? `<div class="muted small row gap6">${icon('cal', 14)} Prochains tests : semaine du ${fmtShort(nt)}</div>` : ''}
   </section>
   <section class="card">
-    <div class="seg sm">${[['n', 'Séances'], ['vol', 'Volume (t)'], ['dur', 'Heures']].map(([k, l]) => `<button class="${prof.metric === k ? 'on' : ''}" data-act="profMetric" data-k="${k}">${l}</button>`).join('')}</div>
+    <div class="seg sm">${[['n', 'Séances'], ['vol', unit() === 'lb' ? 'Volume (k lb)' : 'Volume (t)'], ['dur', 'Heures']].map(([k, l]) => `<button class="${prof.metric === k ? 'on' : ''}" data-act="profMetric" data-k="${k}">${l}</button>`).join('')}</div>
     ${bars}<div class="muted small center">12 dernières semaines</div>
   </section>
   <section class="card"><h3>Muscles travaillés <span class="muted small">· séries, 30 jours</span></h3>${muscles}</section>
@@ -468,13 +502,13 @@ ACT.calNav = el => { prof.month += +el.dataset.d; R.render(); };
 export function bodyView() {
   const ws = weights(), p = P();
   const chart = lineChart([
-    { pts: ws.map(x => ({ t: ts(x.d), v: toDisp(x.v) })), cls: 'raw', dots: true, line: false },
-    { pts: ws.map(x => ({ t: ts(x.d), v: toDisp(avg7(x.d, ws)) })), cls: 'avg' }], { target: toDisp(p.targetWeight), h: 190, empty: 'Pèse-toi quelques matins pour voir ta courbe.' });
+    { pts: ws.map(x => ({ t: ts(x.d), v: bToDisp(x.v) })), cls: 'raw', dots: true, line: false },
+    { pts: ws.map(x => ({ t: ts(x.d), v: bToDisp(avg7(x.d, ws)) })), cls: 'avg' }], { target: bToDisp(p.targetWeight), h: 190, empty: 'Pèse-toi quelques matins pour voir ta courbe.' });
   const waist = Object.keys(db.tests).sort().filter(d => db.tests[d].waist).map(d => ({ t: ts(d), v: db.tests[d].waist }));
   return `<header class="top bar">${back('#/profil')}<h1 class="h-sm">Poids et mesures</h1><button class="btn primary sm" data-act="weighIn">${icon('plus', 16)} Pesée</button></header>
   <section class="card"><h3>Poids</h3>${chart}<div class="legend"><span><i class="dot"></i>Pesées</span><span><i class="line"></i>Moyenne 7 jours</span><span><i class="dash"></i>Objectif</span></div></section>
   ${waist.length ? `<section class="card"><h3>Tour de taille</h3>${lineChart([{ pts: waist, cls: 'avg', dots: true }], { h: 130 })}</section>` : ''}
-  <section class="card list">${ws.slice().reverse().slice(0, 60).map(x => `<div class="li"><span class="grow"><b>${num(toDisp(x.v), 1)} ${U()}</b><small>${cap(fmtDay(x.d))}</small></span>
+  <section class="card list">${ws.slice().reverse().slice(0, 60).map(x => `<div class="li"><span class="grow"><b>${num(bToDisp(x.v), 1)} ${BU()}</b><small>${cap(fmtDay(x.d))}</small></span>
     <button class="icon-btn" data-act="wDelBody" data-d="${x.d}" aria-label="Supprimer">${icon('x', 18)}</button></div>`).join('') || '<p class="muted pad">Aucune pesée.</p>'}</section>`;
 }
 ACT.wDelBody = el => { const b = db.body[el.dataset.d]; if (b) { delete b.weight; save(); R.render(); } };
@@ -532,13 +566,15 @@ export function settingsView() {
   return `<header class="top bar">${back('#/profil')}<h1 class="h-sm">Réglages</h1><span></span></header>
   <section class="card"><h3>Profil</h3>
     <label class="lbl">Prénom<input class="field" data-pf="name" value="${esc(p.name)}" maxlength="30"></label>
-    <label class="lbl">Poids de départ (${U()})<input class="field" type="number" step="0.1" inputmode="decimal" data-pf="startWeight" value="${num(toDisp(p.startWeight), 1).replace(',', '.')}"></label>
-    <label class="lbl">Poids cible (${U()})<input class="field" type="number" step="0.1" inputmode="decimal" data-pf="targetWeight" value="${num(toDisp(p.targetWeight), 1).replace(',', '.')}"></label>
+    <label class="lbl">Poids de départ (${BU()})<input class="field" type="number" step="0.1" inputmode="decimal" data-pf="startWeight" value="${num(bToDisp(p.startWeight), 1).replace(',', '.')}"></label>
+    <label class="lbl">Poids cible (${BU()})<input class="field" type="number" step="0.1" inputmode="decimal" data-pf="targetWeight" value="${num(bToDisp(p.targetWeight), 1).replace(',', '.')}"></label>
     <div class="lbl">Objectifs</div><div class="tags">${GOALS.map(g => `<button class="tag btn-tag ${p.goals.includes(g.k) ? 'strong' : ''}" data-act="goal" data-k="${g.k}">${g.n}</button>`).join('')}</div>
   </section>
   <section class="card"><h3>Jours d’entraînement</h3>${daySel('A')}${daySel('B')}${daySel('C')}
     <p class="muted small">Semaine allégée : séances le 1er et le 3e jour.</p></section>
-  <section class="card"><h3>Unités</h3>${seg('unit', [['kg', 'Kilogrammes'], ['lb', 'Livres']])}</section>
+  <section class="card"><h3>Unités</h3>
+    <div class="lbl">Charges (barres, haltères, machines)</div>${seg('unit', [['kg', 'Kilogrammes'], ['lb', 'Livres']])}
+    <div class="lbl">Poids du corps</div>${seg('bodyUnit', [['kg', 'Kilogrammes'], ['lb', 'Livres']])}</section>
   <section class="card"><h3>Apparence</h3>${seg('theme', [['auto', 'Auto'], ['dark', 'Sombre'], ['light', 'Clair']])}</section>
   <section class="card"><h3>Habitudes quotidiennes</h3>
     <div class="list flush">${p.habits.map((h, i) => `<div class="li"><span class="grow">${esc(h.n)}</span><button class="icon-btn" data-act="habDel" data-i="${i}" aria-label="Retirer">${icon('x', 18)}</button></div>`).join('')}</div>
@@ -578,7 +614,7 @@ export function settingsChange(el) {
   if (el.dataset.pf) {
     const k = el.dataset.pf;
     if (k === 'name') p.name = el.value.trim();
-    else { const v = parseFloat(el.value); if (v > 20) p[k] = fromDisp(v); }
+    else { const v = parseFloat(el.value); if (v > 20) p[k] = bFromDisp(v); }
     save(); toast('Enregistré'); return true;
   }
   if (el.dataset.day) { p.days[el.dataset.day] = +el.value; save(); toast('Enregistré'); return true; }
@@ -597,12 +633,13 @@ export function onboarding() {
       <button class="btn primary block" data-act="obNext">Commencer</button>`;
   else if (ob.step === 1) body = `<h1>Comment tu t’appelles ?</h1>
       <input class="field big" id="obName" value="${esc(p.name)}" placeholder="Prénom" maxlength="30" autocomplete="given-name">
-      <h3>Unités</h3><div class="seg">${[['kg', 'kg'], ['lb', 'lb']].map(([v, l]) => `<button class="${p.unit === v ? 'on' : ''}" data-act="obUnit" data-v="${v}">${l}</button>`).join('')}</div>
+      <h3>Charges au gym</h3><div class="seg">${[['kg', 'kg'], ['lb', 'lb']].map(([v, l]) => `<button class="${p.unit === v ? 'on' : ''}" data-act="obUnit" data-k="unit" data-v="${v}">${l}</button>`).join('')}</div>
+      <h3>Poids du corps</h3><div class="seg">${[['kg', 'kg'], ['lb', 'lb']].map(([v, l]) => `<button class="${p.bodyUnit === v ? 'on' : ''}" data-act="obUnit" data-k="bodyUnit" data-v="${v}">${l}</button>`).join('')}</div>
       <button class="btn primary block" data-act="obNext">Continuer</button>`;
   else if (ob.step === 2) body = `<h1>Tes objectifs</h1>
       <div class="ob-goals">${GOALS.map(g => `<button class="ob-goal ${p.goals.includes(g.k) ? 'on' : ''}" data-act="obGoal" data-k="${g.k}"><span class="ck sm ${p.goals.includes(g.k) ? 'on' : ''}">${icon('check', 14)}</span>${g.n}</button>`).join('')}</div>
-      <div class="grid2"><label class="lbl">Poids actuel (${U()})<input class="field" id="obW" type="number" inputmode="decimal" step="0.1" value="${num(toDisp(p.startWeight), 1).replace(',', '.')}"></label>
-      <label class="lbl">Poids cible (${U()})<input class="field" id="obT" type="number" inputmode="decimal" step="0.1" value="${num(toDisp(p.targetWeight), 1).replace(',', '.')}"></label></div>
+      <div class="grid2"><label class="lbl">Poids actuel (${BU()})<input class="field" id="obW" type="number" inputmode="decimal" step="0.1" value="${num(bToDisp(p.startWeight), 1).replace(',', '.')}"></label>
+      <label class="lbl">Poids cible (${BU()})<input class="field" id="obT" type="number" inputmode="decimal" step="0.1" value="${num(bToDisp(p.targetWeight), 1).replace(',', '.')}"></label></div>
       <button class="btn primary block" data-act="obNext">Continuer</button>`;
   else body = `<h1>Ton programme</h1>
       <div class="card hero"><div class="eyebrow">${icon('target', 14)} ${PROGRAM.perWeek} séances par semaine</div><h2 class="today-title">${PROGRAM.name}</h2><p class="muted small">${PROGRAM.tagline}</p></div>
@@ -615,13 +652,13 @@ function obKeep() {
   const p = P();
   const n = $('#obName'); if (n) p.name = n.value.trim();
   const w = $('#obW'), t = $('#obT');
-  if (w && +w.value > 20) p.startWeight = fromDisp(+w.value);
-  if (t && +t.value > 20) p.targetWeight = fromDisp(+t.value);
+  if (w && +w.value > 20) p.startWeight = bFromDisp(+w.value);
+  if (t && +t.value > 20) p.targetWeight = bFromDisp(+t.value);
   save();
 }
 ACT.obNext = () => { obKeep(); if (ob.step === 1 && !P().name) return toast('Entre ton prénom'); ob.step++; R.render(); };
 ACT.obBack = () => { obKeep(); ob.step = Math.max(0, ob.step - 1); R.render(); };
-ACT.obUnit = el => { obKeep(); P().unit = el.dataset.v; save(); R.render(); };
+ACT.obUnit = el => { obKeep(); P()[el.dataset.k] = el.dataset.v; save(); R.render(); };
 ACT.obGoal = el => { obKeep(); ACT.goal(el); };
 ACT.obDone = () => {
   const p = P(); p.onboarded = true;

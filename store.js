@@ -22,7 +22,7 @@ export const GOALS = [
 const fresh = () => ({
   v: 2,
   profile: {
-    name: '', onboarded: false, unit: 'kg', theme: 'auto',
+    name: '', onboarded: false, unit: 'kg', bodyUnit: 'kg', theme: 'auto',
     startWeight: 92, targetWeight: 85, goals: ['fat', 'muscle', 'power', 'mob'],
     days: { A: 1, B: 3, C: 4 }, overrides: {}, lightWeeks: ['2026-12-07', '2026-12-14'],
     habits: DEFAULT_HABITS, since: null,
@@ -35,7 +35,7 @@ function migrate(old) {
   const db = fresh();
   const st = old.settings || {};
   Object.assign(db.profile, {
-    unit: st.unit || 'kg', startWeight: st.startWeight ?? 92, targetWeight: st.targetWeight ?? 85,
+    unit: st.unit || 'kg', bodyUnit: st.unit || 'kg', startWeight: st.startWeight ?? 92, targetWeight: st.targetWeight ?? 85,
     days: st.days || db.profile.days, overrides: st.overrides || {},
   });
   const toKg = v => (v === '' || v == null) ? '' : st.unit === 'lb' ? +v / LB : +v;
@@ -78,6 +78,8 @@ export let db = load();
 // Complète les champs manquants (nouvelles versions)
 function normalize() {
   const f = fresh();
+  // Avant la séparation des unités : poids du corps en kg, charges en lb (machines du gym en lb)
+  if (db.profile && db.profile.bodyUnit === undefined) { db.profile.bodyUnit = 'kg'; db.profile.unit = 'lb'; }
   db.profile = { ...f.profile, ...db.profile };
   for (const k of Object.keys(f)) if (db[k] === undefined) db[k] = f[k];
 }
@@ -100,9 +102,19 @@ export function resetDb() { db = fresh(); save(); }
 if (navigator.storage?.persist) navigator.storage.persist();
 
 // ---------- Unités (stockage en kg) ----------
+// unit : charges soulevées · bodyUnit : poids du corps
 export const unit = () => db.profile.unit;
 export const toDisp = kg => (kg === '' || kg == null) ? '' : unit() === 'lb' ? kg * LB : kg;
 export const fromDisp = v => (v === '' || v == null || isNaN(v)) ? '' : unit() === 'lb' ? v / LB : +v;
+export const bodyUnit = () => db.profile.bodyUnit || 'kg';
+export const bToDisp = kg => (kg === '' || kg == null) ? '' : bodyUnit() === 'lb' ? kg * LB : kg;
+export const bFromDisp = v => (v === '' || v == null || isNaN(v)) ? '' : bodyUnit() === 'lb' ? v / LB : +v;
+// Volume : tonnes en kg, milliers de livres en lb
+export const volTxt = kg => {
+  const f = (v, d) => v.toLocaleString('fr-CA', { maximumFractionDigits: d });
+  if (unit() === 'lb') { const lb = kg * LB; return lb < 1000 ? `${f(lb, 0)} lb` : `${f(lb / 1000, 1)}k lb`; }
+  return kg < 1000 ? `${f(kg, 0)} kg` : `${f(kg / 1000, 1)} t`;
+};
 // Arrondi d'affichage : 0,25 kg / 0,5 lb
 export const roundDisp = v => v === '' ? '' : unit() === 'lb' ? Math.round(v * 2) / 2 : Math.round(v * 4) / 4;
 
