@@ -1,6 +1,7 @@
 // Hors ligne : coquille de l'app mise à jour en arrière-plan, images en cache permanent
-const V = 'forme-v1';
-const SHELL = ['./', 'index.html', 'style.css', 'app.js', 'data.js', 'manifest.webmanifest', 'icons/icon-192.png'];
+const V = 'forme-v2';
+const SHELL = ['./', 'index.html', 'style.css', 'app.js', 'util.js', 'store.js', 'exercises.js', 'program.js', 'core.js', 'ui.js',
+  'timer.js', 'workout.js', 'views.js', 'manifest.webmanifest', 'icons/icon-192.png', 'fonts/inter.woff2'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL))); self.skipWaiting(); });
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim()));
@@ -8,7 +9,7 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== location.origin) return;
-  if (url.pathname.includes('/img/')) {
+  if (url.pathname.includes('/img/') || url.pathname.includes('/fonts/')) {
     e.respondWith(caches.match(e.request).then(r => r || fetch(e.request).then(res => {
       const copy = res.clone(); caches.open(V).then(c => c.put(e.request, copy)); return res;
     })));

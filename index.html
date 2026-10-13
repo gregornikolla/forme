@@ -4,24 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Forme</title>
-<meta name="theme-color" content="#111418">
+<meta name="description" content="Programme, séances guidées, progression automatique et statistiques.">
+<meta name="theme-color" content="#0b0b0e">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preload" href="fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header><a href="#/" class="logo">Forme</a><span id="hdate"></span><a href="#/reglages" class="gear" aria-label="Réglages">
-  <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7m7.43-2.53c.04-.32.07-.64.07-.97s-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1s.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64z"/></svg></a></header>
-<main id="view"></main>
+<main id="view" class="view"></main>
+<div id="mini"></div>
 <div id="timer"></div>
-<div id="toast"></div>
-<nav>
-  <a href="#/"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Accueil</a>
-  <a href="#/seance"><svg viewBox="0 0 24 24"><path d="M2 10h2v4H2zm18 0h2v4h-2zM5 7h3v10H5zm11 0h3v10h-3zM8 11h8v2H8z"/></svg>Séance</a>
-  <a href="#/mobilite"><svg viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2"/><path d="M5 9h14v2h-5v4l3 6h-2.3L12 16l-2.7 5H7l3-6v-4H5z"/></svg>Mobilité</a>
-  <a href="#/progres"><svg viewBox="0 0 24 24"><path d="M3 20h18v2H3zM5 12h3v7H5zm5.5-5h3v12h-3zM16 3h3v16h-3z"/></svg>Progrès</a>
-  <a href="#/guide"><svg viewBox="0 0 24 24"><path d="M5 3h11l3 3v15H5zm3 5v2h8V8zm0 4v2h8v-2zm0 4v2h5v-2z"/></svg>Guide</a>
+<div id="toast" role="status"></div>
+<nav class="tabs">
+  <a href="#/" data-tab=""><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Accueil</span></a>
+  <a href="#/entrainement" data-tab="entrainement"><svg viewBox="0 0 24 24"><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/></svg><span>Entraînement</span></a>
+  <a href="#/exercices" data-tab="exercices"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg><span>Exercices</span></a>
+  <a href="#/profil" data-tab="profil"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Profil</span></a>
 </nav>
 <script type="module" src="app.js"></script>
 </body>
