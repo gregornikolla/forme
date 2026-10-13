@@ -40,6 +40,14 @@ export const EX = {
     'Petits sauts rapides sur place, jambes presque tendues.',
     'Chevilles « raides » comme un ressort : le moins de temps possible au sol.',
     'Reste sur l’avant du pied, bras détendus.'], 'pogo hops plyometric', P),
+  cmj: e('Saut vertical (CMJ)', 'Freehand_Jump_Squat', 'bodyweight', 'quads glutes', 'calves hams', 'r', [
+    'Debout, pieds largeur de hanches. Descends vite en quart de squat en lançant les bras vers l’arrière.',
+    'Enchaîne sans pause et saute le plus haut possible, bras vers le plafond.',
+    'Atterris en douceur, genoux alignés avec les pieds, et replace-toi. Chaque saut = effort maximal.'], 'countermovement jump technique', P),
+  drop_jump: e('Drop jump', 'Linear_Depth_Jump', 'bodyweight', 'quads calves', 'glutes', 'r', [
+    'Debout sur une boîte basse (20–30 cm), fais un pas dans le vide.',
+    'Rebondis aussitôt le plus haut possible : contact au sol très court, comme sur des ressorts.',
+    'Si tes talons s’écrasent au sol ou si le contact est long, la boîte est trop haute.'], 'drop jump reactive strength', P),
   hurdle_hops: e('Sauts de haies enchaînés', 'Hurdle_Hops', 'bodyweight', 'quads calves', 'glutes', 'r', [
     'Aligne 4–5 petites haies ou cônes, espacés d’environ 1 m.',
     'Saute par-dessus chacun en enchaînant, contact au sol court.',
@@ -234,10 +242,10 @@ export const EX = {
     'À genoux, chevilles bloquées (partenaire, banc ou machine).',
     'Descends le buste vers l’avant le plus lentement possible, corps droit.',
     'Rattrape-toi avec les mains et repousse pour remonter.'], 'nordic hamstring curl beginner'),
-  copenhagen: e('Copenhagen plank', null, 'bodyweight', 'adductors', 'abs', 'time', [
-    'Planche latérale, genou du dessus posé sur un banc (version facile) ou cheville (version dure).',
-    'Soulève les hanches, corps aligné.',
-    'Tiens la position. Renforce les adducteurs (prévention des blessures).'], 'copenhagen plank beginner'),
+  copenhagen: e('Copenhagen adducteurs', null, 'bodyweight', 'adductors', 'abs', 'r', [
+    'Planche latérale sur l’avant-bras, jambe du dessus posée sur un banc : genou (facile) ou cheville (difficile).',
+    'Monte les hanches en serrant la jambe du dessus contre le banc, corps aligné.',
+    'Redescends lentement en 2–3 s sans toucher le sol. Toutes les reps d’un côté, puis change.'], 'copenhagen adduction exercise'),
   back_ext: e('Extensions lombaires', 'Hyperextensions_Back_Extensions', 'bodyweight', 'lower_back', 'glutes hams', 'r', [
     'Hanches sur le coussin, chevilles bloquées.',
     'Descends le buste, remonte jusqu’à l’alignement, sans hyper-cambrer.'], 'back extension technique'),
@@ -476,6 +484,14 @@ export const EX = {
     'Les genoux restent collés au sol.'], 'open book thoracic rotation', M),
   band_pull: e('Écartés avec élastique', 'Band_Pull_Apart', 'mob', 'shoulders', 'back', 'time', [
     'Élastique tenu bras tendus devant toi.', 'Écarte les mains jusqu’à la poitrine en serrant les omoplates.'], 'band pull apart', M),
+  a_skip: e('A-skips', null, 'mob', 'hips', 'calves', 'time', [
+    'Sautille en montant un genou à hauteur de hanche, pied relevé.',
+    'Frappe le sol sous la hanche avec l’avant du pied, bras opposé actif.',
+    'Rythme d’abord, vitesse ensuite.'], 'A skip sprint drill', M),
+  strides: e('Lignes droites progressives', null, 'mob', 'hams', 'quads calves', 'time', [
+    'Sur 40–60 m, accélère progressivement jusqu’à environ 80–90 % de ta vitesse.',
+    'Reste grand et relâché, retour en marchant.',
+    'Chaque ligne droite un peu plus vite que la précédente.'], 'running strides warm up', M),
   leg_swings: e('Balancés de jambes', null, 'mob', 'hips', 'hams', 'time', [
     'Une main au mur, balance la jambe d’avant en arrière, amplitude croissante.',
     'Puis latéralement, devant toi.'], 'leg swings warm up', M),
@@ -520,6 +536,65 @@ export const EX = {
     'Mains au mur, une jambe derrière, talon au sol.',
     '30 s jambe tendue, puis 30 s genou plié.'], 'calf stretch wall', M),
 };
+
+// Pourquoi cet exercice : raison et source principale (affiché dans la fiche)
+const WHY = {
+  back_squat: 'Le mouvement de base pour la force et le volume des cuisses. Descendre bas développe davantage les fessiers et les adducteurs qu’un demi-squat (Kubo 2019).',
+  goblet_squat: 'Version d’apprentissage du squat : la charge devant garde le buste droit. Sert à reprendre les jambes en douceur après le marathon.',
+  rdl: 'Charge les ischios en position étirée, là où la croissance musculaire est la plus forte. Base de la chaîne postérieure pour sprinter et sauter.',
+  trapbar: 'Moins de contrainte pour le bas du dos qu’à la barre droite, et on y produit plus de force, de vitesse et de puissance (Swinton 2011).',
+  bulgarian: 'Une jambe à la fois : corrige les déséquilibres et charge fortement quadriceps et fessiers avec peu de stress pour le dos.',
+  seated_leg_curl: 'Assis, hanche fléchie, les ischios travaillent étirés : nettement plus de croissance qu’en leg curl couché (Maeo 2021).',
+  nordic: 'Réduit d’environ moitié les blessures aux ischios dans les sports de course (van Dyk 2019, méta-analyse). Quelques séries par semaine suffisent.',
+  copenhagen: 'Réduit d’environ 40 % les blessures à l’aine chez les joueurs de soccer (Harøy 2019, essai randomisé).',
+  calf: 'Les mollets répondent mieux quand on insiste sur la position étirée : marque la pause en bas (Kassiano 2023). Renforce aussi le tendon d’Achille.',
+  hanging_raise: 'Abdos en amplitude complète, en contrôlant le bassin. Renforce aussi la prise et les épaules.',
+  ab_wheel: 'Gainage anti-extension parmi les plus exigeants pour les abdos.',
+  bench: 'Le mouvement de poussée le plus étudié : force et masse des pectoraux, épaules et triceps.',
+  db_bench: 'Plus d’amplitude qu’à la barre et chaque bras travaille seul.',
+  incline_db: 'Cible le haut des pectoraux, avec une amplitude complète.',
+  dips_chest: 'Pectoraux bas et triceps au poids du corps, progressif avec du lest. Étirement marqué des pectoraux en bas.',
+  pullup: 'Le tirage vertical de référence pour la largeur du dos. Ta force par kilo de corps monte aussi en perdant du gras.',
+  chinup: 'Paumes vers toi : même tirage vertical, avec plus de travail des biceps.',
+  cable_row: 'Tirage horizontal : épaisseur du dos et équilibre avec les mouvements de poussée.',
+  db_row: 'Tirage un bras avec grande amplitude, sans stress pour le bas du dos.',
+  ohp: 'Debout, barre au-dessus de la tête : force des épaules et gainage de tout le corps. Un classique depuis plus d’un siècle.',
+  db_ohp: 'Développé au-dessus de la tête plus facile pour les épaules qu’à la barre.',
+  push_press: 'Transmet la poussée des jambes aux bras : puissance de tout le corps, comme en haltérophilie.',
+  lat_raise: 'Le deltoïde latéral (largeur des épaules) est peu sollicité par les développés : il a besoin de son propre exercice.',
+  face_pull: 'Arrière des épaules et rotateurs externes, souvent négligés : équilibre tous les mouvements de poussée.',
+  incline_curl: 'Bras derrière le corps, le biceps travaille étiré, une position favorable à la croissance musculaire.',
+  tri_overhead: 'Bras au-dessus de la tête, le long chef du triceps est étiré : nettement plus de croissance qu’à la poulie classique (Maeo 2023).',
+  farmer: 'Prise, trapèzes et gainage sous charge lourde. Simple et très efficace.',
+  pogo: 'Rend chevilles et tendons plus « élastiques » : la base de la détente et du sprint.',
+  cmj: 'Le saut vertical sans élan est le geste de base de la pliométrie, qui améliore la détente de façon fiable (Markovic 2007, méta-analyse).',
+  drop_jump: 'Pliométrie réactive : apprend à rebondir vite après une réception, l’une des méthodes les plus efficaces pour la détente (Markovic 2007).',
+  depth_jump: 'Version plus haute du drop jump : stimulus réactif maximal. Réservé à la phase Puissance, après des semaines de préparation.',
+  hurdle_hops: 'Sauts enchaînés à contact court : force réactive, utile au basket.',
+  trapbar_jump: 'Sauter avec une charge légère développe la puissance. Combiné à l’entraînement de force, c’est l’approche la plus efficace (Cormie 2011).',
+  broad_jump: 'Puissance horizontale des hanches, liée à l’accélération en sprint.',
+  lateral_bound: 'Puissance latérale sur un pied : changements de direction au basket et au soccer.',
+  sprint_acc: 'Sprinter est le meilleur entraînement pour la vitesse. Des accélérations courtes d’abord pour préparer les ischios.',
+  sprint_20: 'S’exposer régulièrement à la vitesse maximale améliore la vitesse et prépare les ischios à l’effort des matchs.',
+  sprint_fly: 'Vitesse maximale pure, sans la phase d’accélération : le travail de vitesse le plus spécifique.',
+  cod: 'Freiner et relancer : technique et force des changements de direction, un test standard des sports d’équipe.',
+  mb_rot: 'Puissance de rotation des hanches vers le tronc : frappe au soccer, passes et tirs au basket.',
+  mb_chest: 'Puissance de poussée du haut du corps, sans phase de freinage en fin de mouvement.',
+  a_skip: 'Exercice d’échauffement classique des sprinteurs : posture et pose de pied active.',
+  strides: 'Montée progressive vers la vitesse : prépare les ischios avant les sprints.',
+  pike_pnf: 'Contracter-relâcher (PNF) : gain d’amplitude au moins égal à l’étirement statique classique.',
+  couch: 'Étire le droit fémoral et le psoas, raccourcis par la course et la position assise.',
+  deep_squat: 'Hanches, chevilles et adducteurs ensemble : améliore directement ta profondeur de squat.',
+  calf_wall: 'Jambe tendue pour le gastrocnémien, genou plié pour le soléaire : la cheville limite souvent la profondeur du squat.',
+  frog: 'Adducteurs : souvent la vraie limite de l’écart et du squat profond.',
+  pigeon: 'Fessiers et rotateurs de hanche, très sollicités par la course.',
+  lat_stretch: 'Un grand dorsal souple permet de lever les bras au-dessus de la tête sans cambrer le dos.',
+};
+for (const [k, v] of Object.entries(WHY)) EX[k].why = v;
+
+// Peu utiles ou plus risqués que leurs équivalents : gardés pour l'historique, masqués de la bibliothèque
+for (const k of ['bench_dips', 'upright_row', 'russian', 'bicycle', 'glute_kick', 'kickback', 'tuck_jump', 'bench_jump'])
+  EX[k].hide = true;
 
 // Incrément de charge pour la double progression
 const LOWER = ['quads', 'hams', 'glutes'];

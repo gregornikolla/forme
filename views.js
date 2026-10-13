@@ -1,7 +1,7 @@
 // Écrans principaux
 import { db, save, exOf, unit, toDisp, fromDisp, roundDisp, GOALS } from './store.js';
 import { GROUPS, EQUIP } from './exercises.js';
-import { PROGRAM, PHASES, CYCLE_START, ROUTINES, MOBILITY, TESTS, buildSession, ctxOf, testMondays } from './program.js';
+import { PROGRAM, PHASES, CYCLE_START, ROUTINES, MOBILITY, PRINCIPLES, TESTS, buildSession, ctxOf, testMondays } from './program.js';
 import {
   finished, doneSets, weekStatus, streak, weights, avg7, eta, workoutVolume, workoutSets, exBests, e1rm,
   muscleSplit, weeklySeries, PR_LABEL, prText, startProgram, startRoutine, startEmpty, startCopy, setText, dayPlan, phaseInfo,
@@ -519,9 +519,9 @@ export function programView() {
   <section class="card"><h3>Ajuster la semaine</h3>${ov(mon, 'Cette semaine')}${ov(next, 'Semaine prochaine')}
     <p class="muted small">Allégée = 2 séances de 45 min (examens, semaine chargée, fatigue).</p></section>
   <section class="card"><h3>Étapes</h3><ul class="timeline">${phases}</ul></section>
-  <section class="card"><h3>Comment ça progresse</h3>
-    <p class="small">Quand tu réussis toutes les reps de toutes les séries, l’app ajoute du poids à la séance suivante. Sinon, même charge et une rep de plus.</p>
-    <p class="small muted">RPE 7 = il te reste 3 reps en réserve · RPE 8 = 2 · RPE 9 = 1.</p></section>`;
+  <section class="card"><h3>Sur quoi repose le programme</h3>
+    <ol class="principles">${PRINCIPLES.map(([t, d]) => `<li><b>${t}.</b> <span>${d}</span></li>`).join('')}</ol>
+    <p class="small muted">RPE 7 = il te reste 3 reps en réserve · RPE 8 = 2 · RPE 9 = 1. Touche un exercice pour voir pourquoi il est là.</p></section>`;
 }
 
 // ---------- Réglages ----------

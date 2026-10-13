@@ -74,6 +74,7 @@ export function howTo(id) {
   const tags = [...ex.mu.map(m => `<span class="tag strong">${MUSCLES[m] || m}</span>`), ...ex.mu2.map(m => `<span class="tag">${MUSCLES[m] || m}</span>`)];
   return `${media(ex)}
     <div class="tags">${tags.join('')}<span class="tag eq">${EQUIP[ex.eq] || ''}</span></div>
+    ${ex.why ? `<div class="why"><b>Pourquoi cet exercice</b><p>${esc(ex.why)}</p></div>` : ''}
     ${ex.cues?.length ? `<ol class="steps">${ex.cues.map(c => `<li>${esc(c)}</li>`).join('')}</ol>` : '<p class="muted">Exercice personnalisé.</p>'}
     ${ex.note ? `<p class="callout">${icon('info', 16)}<span>${esc(ex.note)}</span></p>` : ''}
     ${ex.yt ? `<a class="btn ghost block" href="https://www.youtube.com/results?search_query=${encodeURIComponent(ex.yt)}" target="_blank" rel="noopener">${icon('video', 18)} Voir une vidéo</a>` : ''}`;

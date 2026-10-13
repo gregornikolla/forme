@@ -312,6 +312,12 @@ select.field {
 }
 .callout { display: flex; gap: 8px; align-items: flex-start; background: var(--s2); border-radius: 12px; padding: 10px 12px; font-size: 14px; color: var(--tx2); }
 .callout svg { margin-top: 2px; color: var(--ac); }
+.why { border-left: 3px solid var(--ac); background: var(--s2); border-radius: 4px 12px 12px 4px; padding: 10px 12px; margin: 12px 0; }
+.why b { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--ac); margin-bottom: 4px; }
+.why p { margin: 0; font-size: 14px; line-height: 1.45; color: var(--tx2); }
+.principles { margin: 0; padding-left: 18px; }
+.principles li { margin: 10px 0; font-size: 14px; line-height: 1.45; }
+.principles li span { color: var(--tx2); }
 .center-left { margin: -6px 0 2px; }
 
 /* ---------- Séance en cours ---------- */

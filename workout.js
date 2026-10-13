@@ -285,6 +285,7 @@ export function filterEx(q, g) {
   const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
   const nq = norm(q || '');
   return Object.entries(allEx()).filter(([, ex]) => {
+    if (ex.hide) return false;
     if (G?.cat && !G.cat.includes(ex.cat)) return false;
     if (G?.mu && (ex.cat === 'mob' || !ex.mu.some(m => G.mu.includes(m)))) return false;
     if (!G && ex.cat === 'mob' && !nq) return false;

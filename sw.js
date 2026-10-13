@@ -1,5 +1,5 @@
 // Hors ligne : coquille de l'app mise à jour en arrière-plan, images en cache permanent
-const V = 'forme-v2';
+const V = 'forme-v3';
 const SHELL = ['./', 'index.html', 'style.css', 'app.js', 'util.js', 'store.js', 'exercises.js', 'program.js', 'core.js', 'ui.js',
   'timer.js', 'workout.js', 'views.js', 'manifest.webmanifest', 'icons/icon-192.png', 'fonts/inter.woff2'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL))); self.skipWaiting(); });
