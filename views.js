@@ -147,17 +147,17 @@ ACT.dayPrev = el => {
   if (done.length) body += done.map(w => `<a class="li" href="#/w/${w.id}" data-act="sheetClose">
       <span class="ck sm on">${icon('check', 14)}</span><span class="grow"><b>${esc(w.name)}</b><small>${fmtDur(w.end - w.start)} · ${workoutSets(w)} séries${w.prs?.length ? ` · ${w.prs.length} record${w.prs.length > 1 ? 's' : ''}` : ''}</small></span>${icon('right', 18, 'muted')}</a>`).join('');
   const progDone = done.some(w => w.kind === 'program');
-  if (p.gym && !progDone) {
+  if (p.gym && !progDone && d >= PHASES[0].start) {
     const ctx = ctxOf(info), S = buildSession(p.gym, ctx);
     const rows = S.items.map(it => {
-      const ex = exOf(it.id), x = makeExercise(it, { deload: ctx.deload }), w = x.sets[0]?.pw;
+      const ex = exOf(it.id), x = makeExercise(it, { deload: ctx.deload, beforeTs: d < t ? +parse(d) : Infinity }), w = x.sets[0]?.pw;
       const load = (ex.lt === 'wr' || ex.lt === 'wd') && w !== '' && w != null ? ` · ${num(roundDisp(toDisp(+w)), 1)} ${U()}`
         : ex.lt === 'bw' && +w > 0 ? ` · +${num(roundDisp(toDisp(+w)), 1)} ${U()}` : '';
       return `<button class="li" data-act="exInfo" data-id="${esc(it.id)}">${thumb(it.id, 40)}<span class="grow"><b>${esc(ex.n)}</b>
         <small>${x.target ? `${x.target.sets} × ${targetLabel(x.target.reps)}` : ''}${load}${it.rpe ? ` · ${esc(it.rpe)}` : ''}</small></span>
         ${it.ss ? `<span class="badge">${it.ss}</span>` : ''}</button>`;
     }).join('');
-    const missed = d < t;
+    const missed = d < t && d >= (P().since || t);
     body += `<div class="muted small">${info.name}${info.weeks > 1 ? ` · semaine ${info.week}` : ''}${ctx.deload ? ' · allégée' : ''}${p.optional ? ' · optionnelle' : ''} · ~${S.min} min${missed ? ' · <span class="bad">non faite</span>' : ''}</div>
       <h4 class="prev-h">${esc(S.name)}</h4>
       <div class="muted small">Échauffement : ${S.warm.length} exercices, ~8 min</div>
@@ -165,8 +165,9 @@ ACT.dayPrev = el => {
       <div class="muted small">Retour au calme : ${S.cool.map(c => esc(exOf(c.id).n)).join(', ')}</div>
       ${d === t ? `<button class="btn primary block" data-act="startProg" data-type="${p.gym}">${icon('play', 18)} Commencer</button>` : ''}`;
   }
-  if (p.run) body += `<div class="li"><span class="run-ic">${icon('run', 18)}</span><span class="grow"><b>Course facile${p.run === 'option' ? ' (optionnelle)' : ''}</b><small>30–40 min à allure de conversation${db.runs[d] ? ' · faite' : ''}</small></span></div>`;
-  if (!p.gym && !done.length) body += `<p class="muted">${info.key === 'recup' ? 'Récupération : marche 20–40 min et mobilité douce.' : 'Repos. Marche, et la routine Souplesse si tu as 10 minutes.'}</p>
+  if (p.run && d >= PHASES[0].start) body += `<div class="li"><span class="run-ic">${icon('run', 18)}</span><span class="grow"><b>Course facile${p.run === 'option' ? ' (optionnelle)' : ''}</b><small>30–40 min à allure de conversation${db.runs[d] ? ' · faite' : ''}</small></span></div>`;
+  if (d < PHASES[0].start && !done.length) body += `<p class="muted">Avant le début du programme.</p>`;
+  else if (!p.gym && !done.length) body += `<p class="muted">${info.key === 'recup' ? 'Récupération : marche 20–40 min et mobilité douce.' : 'Repos. Marche, et la routine Souplesse si tu as 10 minutes.'}</p>
       <a class="btn soft block" href="#/mobilite" data-act="sheetClose">${icon('stretch', 18)} ${MOBILITY.name} · ${mobMinutes()} min</a>`;
   openSheet(`<div class="sheet-body day-prev"><div class="eyebrow">${when || cap(DOW_LONG[parse(d).getDay()])}</div>
     <h3 class="sheet-title">${cap(fmtDay(d))}</h3>${body}</div>`, { cls: 'tall' });
@@ -488,7 +489,7 @@ function calendar() {
   for (let d = 1; d <= daysIn; d++) {
     const ds = ymd(new Date(y, m, d, 12));
     const plan = ds >= t && dayPlan(ds, P()).gym;
-    cells.push(`<span class="cd ${dates.has(ds) ? 'on' : ''} ${ds === t ? 'today' : ''} ${plan ? 'plan' : ''}">${d}</span>`);
+    cells.push(`<button class="cd ${dates.has(ds) ? 'on' : ''} ${ds === t ? 'today' : ''} ${plan ? 'plan' : ''}" data-act="dayPrev" data-d="${ds}">${d}</button>`);
   }
   const n = [...dates].filter(d => d.startsWith(first.slice(0, 7))).length;
   return `<div class="row between"><button class="icon-btn" data-act="calNav" data-d="-1">${icon('back', 20)}</button>
